@@ -27,8 +27,9 @@ Prerequisites to Run Integration Tests
 
     Associate the developer application client id/secret with webapp. This should be a developer app that has a callback url
     configured to work with the testing environment, e.g., http://localhost:8080/katapult/api/github/callback.
-    Before building the katapult.war, configure the `GITHUB_DEV_APP_CLIENT_ID` and `GITHUB_DEV_APP_SECRET` environment variables
-    to contain the id and secret for the github developer application you want to use.
+    Configure the `GITHUB_DEV_APP_CLIENT_ID` and `GITHUB_DEV_APP_SECRET` environment variables
+    to contain the id and secret for the github developer application you want to use. You can also specify system properties
+    of the same name to override any environment variable setting.
     
 2. A locally-running instance of OpenShift 
 
@@ -63,22 +64,3 @@ Run the Integration Tests, Optionally Building
     * Run the integration tests and have Maven skip start/stop of the WildFly server by using the `server-remote` profile.  This may speed up your development cycle if you're doing many runs by starting your server on your own and letting it run through several test runs.
         * `$ mvn integration-test -Pit,server-remote` or `$ mvn clean install -Pit,server-remote`
         
-
-Production Setup of Widfly
---------------------------
-
-When deploying the katapult.ear to the production environment, you need to override the developer application client id/secret
-encoded in the application web.xml with one that has a callback URL that is approriate for the production environment, e.g.,
-http://developers.redhat.com/api/github/callback. To do this, you need to setup the server JNDI environment to have
-java:global/GITHUB_DEV_APP_CLIENT_ID and java:global/GITHUB_DEV_APP_SECRET bindings. For wildfly, this can be done by adding
-bindings to the naming subsystem. An example standalone.xml fragment would be:
-
-```
-        <subsystem xmlns="urn:jboss:domain:naming:2.0">
-            <bindings>
-                <simple name="java:global/GITHUB_DEV_APP_CLIENT_ID" value="abc" type="java.lang.String" />
-                <simple name="java:global/GITHUB_DEV_APP_SECRET" value="xyz" type="java.lang.String" />
-            </bindings>
-            <remote-naming/>
-        </subsystem>
-```

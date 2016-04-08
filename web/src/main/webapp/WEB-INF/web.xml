@@ -6,17 +6,4 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          metadata-complete="false">
 
-  <env-entry>
-    <description>The client id assigned to the developer github application</description>
-    <env-entry-name>GITHUB_DEV_APP_CLIENT_ID</env-entry-name>
-    <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>${env.GITHUB_DEV_APP_CLIENT_ID}</env-entry-value>
-  </env-entry>
-  <env-entry>
-    <description>The client secret assigned to the developer github application</description>
-    <env-entry-name>GITHUB_DEV_APP_SECRET</env-entry-name>
-    <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>${env.GITHUB_DEV_APP_SECRET}</env-entry-value>
-  </env-entry>
-
 </web-app>

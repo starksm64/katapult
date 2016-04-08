@@ -14,13 +14,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -62,33 +59,22 @@ public class GithubResource
    /** The client secret received from GitHub when the developer app was registered */
    private static String GITHUB_DEV_APP_SECRET;
 
-   private static String lookup(String name, String defaultValue) {
-      String value = defaultValue;
-      try {
-         InitialContext ctx = new InitialContext();
-         value = (String) ctx.lookup(name);
-      } catch (NamingException e) {
-      }
-      return value;
-   }
-
    /**
-    * Initialize the GITHUB_DEV_APP_CLIENT_ID and GITHUB_DEV_APP_SECRET values from the JNDI environment by first looking
-    * to the java:global context for an application server specific setting, and then the java:comp/env context for the
-    * web application settings encoded in the build environment.
+    * Initialize the GITHUB_DEV_APP_CLIENT_ID and GITHUB_DEV_APP_SECRET values from the environment by first looking
+    * to the system property by the same name, will fallback to the environment variable by the same name.
     */
    @PostConstruct
    private void init() {
-      // Try global context first as this would be configured at the app server level
-      GITHUB_DEV_APP_CLIENT_ID = lookup("java:global/GITHUB_DEV_APP_CLIENT_ID", null);
+      // Try the system property first since this can be specified in the server configuration
+      GITHUB_DEV_APP_CLIENT_ID = System.getProperty("GITHUB_DEV_APP_CLIENT_ID");
       if(GITHUB_DEV_APP_CLIENT_ID == null)
-         GITHUB_DEV_APP_CLIENT_ID = lookup("java:comp/env/GITHUB_DEV_APP_CLIENT_ID", null);
+         GITHUB_DEV_APP_CLIENT_ID = System.getenv("GITHUB_DEV_APP_CLIENT_ID");
       if(GITHUB_DEV_APP_CLIENT_ID == null)
          log.severe("Failed to find binding for GITHUB_DEV_APP_CLIENT_ID");
 
-      GITHUB_DEV_APP_SECRET = lookup("java:global/GITHUB_DEV_APP_SECRET", null);
+      GITHUB_DEV_APP_SECRET = System.getProperty("GITHUB_DEV_APP_SECRET");
       if(GITHUB_DEV_APP_SECRET == null)
-         GITHUB_DEV_APP_SECRET = lookup("java:comp/env/GITHUB_DEV_APP_SECRET", null);
+         GITHUB_DEV_APP_SECRET = System.getenv("GITHUB_DEV_APP_SECRET");
       if(GITHUB_DEV_APP_SECRET == null)
          log.severe("Failed to find binding for GITHUB_DEV_APP_SECRET");
    }
