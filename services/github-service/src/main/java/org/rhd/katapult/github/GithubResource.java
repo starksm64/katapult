@@ -13,13 +13,17 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
@@ -54,11 +58,65 @@ public class GithubResource
 
    // Create a Third-party application in Github
    /** The client ID received from GitHub when the developer app was registered */
-   @Resource(lookup = "java:global/GITHUB_CLIENT_ID")
-   private static String CLIENT_ID;
+   private static String GITHUB_DEV_APP_CLIENT_ID;
    /** The client secret received from GitHub when the developer app was registered */
-   @Resource(lookup = "java:global/CLIENT_SECRET")
-   private static String CLIENT_SECRET;
+   private static String GITHUB_DEV_APP_SECRET;
+
+   private static String lookup(String name, String defaultValue) {
+      String value = defaultValue;
+      try {
+         InitialContext ctx = new InitialContext();
+         value = (String) ctx.lookup(name);
+      } catch (NamingException e) {
+      }
+      return value;
+   }
+
+   /**
+    * Initialize the GITHUB_DEV_APP_CLIENT_ID and GITHUB_DEV_APP_SECRET values from the JNDI environment by first looking
+    * to the java:global context for an application server specific setting, and then the java:comp/env context for the
+    * web application settings encoded in the build environment.
+    */
+   @PostConstruct
+   private void init() {
+      // Try global context first as this would be configured at the app server level
+      GITHUB_DEV_APP_CLIENT_ID = lookup("java:global/GITHUB_DEV_APP_CLIENT_ID", null);
+      if(GITHUB_DEV_APP_CLIENT_ID == null)
+         GITHUB_DEV_APP_CLIENT_ID = lookup("java:comp/env/GITHUB_DEV_APP_CLIENT_ID", null);
+      if(GITHUB_DEV_APP_CLIENT_ID == null)
+         log.severe("Failed to find binding for GITHUB_DEV_APP_CLIENT_ID");
+
+      GITHUB_DEV_APP_SECRET = lookup("java:global/GITHUB_DEV_APP_SECRET", null);
+      if(GITHUB_DEV_APP_SECRET == null)
+         GITHUB_DEV_APP_SECRET = lookup("java:comp/env/GITHUB_DEV_APP_SECRET", null);
+      if(GITHUB_DEV_APP_SECRET == null)
+         log.severe("Failed to find binding for GITHUB_DEV_APP_SECRET");
+   }
+
+   /**
+    * A simple verification endpoint that allows one to check if the GITHUB_DEV_APP_CLIENT_ID and GITHUB_DEV_APP_SECRET this
+    * endpoint are using are as expected.
+    *
+    * @param clientID - the expected GITHUB_DEV_APP_CLIENT_ID value
+    * @param secret - the expected GITHUB_DEV_APP_SECRET value
+    * @return a json object showing the clientID and secret validity status, {clientID: "valid", secret: "invalid"}
+     */
+   @GET
+   @Path("/verify")
+   @Produces("application/json")
+   public Response verifyConfiguration(@QueryParam("clientID") String clientID, @QueryParam("secret") String secret) {
+      JsonObjectBuilder builder = Json.createObjectBuilder();
+      if(clientID.equals(GITHUB_DEV_APP_CLIENT_ID))
+         builder.add("clientID", "valid");
+      else
+         builder.add("clientID", "invalid");
+      if(clientID.equals(GITHUB_DEV_APP_CLIENT_ID))
+         builder.add("secret", "valid");
+      else
+         builder.add("secret", "invalid");
+
+      return Response.ok(builder.build()).build();
+   }
 
    /**
     * Initiate a request to fork a github repository into a user's github account.
@@ -166,8 +224,8 @@ public class GithubResource
    private JsonObject postToken(String code, String state, Client client)
    {
       MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-      map.putSingle("client_id", CLIENT_ID);
-      map.putSingle("client_secret", CLIENT_SECRET);
+      map.putSingle("client_id", GITHUB_DEV_APP_CLIENT_ID);
+      map.putSingle("client_secret", GITHUB_DEV_APP_SECRET);
       map.putSingle("code", code);
       map.putSingle("state", state);
       // {"access_token":"3d4bf6b3ea93fba1dbfeeb5fa5afb5226e0cbec9","token_type":"bearer","scope":"public_repo,user:email"}
@@ -241,7 +299,7 @@ public class GithubResource
       Client client = ClientBuilder.newClient();
       Response response = client.target(GITHUB_OAUTH_URL)
               .queryParam("repo", repo)
-              .queryParam("client_id", CLIENT_ID)
+              .queryParam("client_id", GITHUB_DEV_APP_CLIENT_ID)
               .queryParam("scope", "user:email,public_repo")
               .queryParam("state", state)
               .request()
