@@ -11,8 +11,8 @@ import java.util.logging.SimpleFormatter;
 
 /**
  * A logging configuration class that first attempts to load a logging.properties file from the classpath, and then falls
- * back to a programmatic configuration. To enable, specify -Djava.util.logging.config.class=LoggingConfig in test
- * app configuration.
+ * back to a programmatic configuration. To enable, specify -Djava.util.logging.config.class=org.rhd.katapult.test.LoggingConfig
+ * in test app configuration.
  *
  */
 public class LoggingConfig {

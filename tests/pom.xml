@@ -17,7 +17,7 @@
     These properties are read in by arquillian.xml
     -->
     <browser>phantomjs</browser> <!-- PhantomJS will be our default browser if no profile is specified-->
-    <runmode>managed</runmode> <!-- Default runmode if "server-managed" or "server-remote" is not specified -->
+    <runmode>server-remote</runmode> <!-- Default runmode if "server-managed" or "server-remote" is not specified -->
   </properties>
 
   <build>
@@ -86,6 +86,13 @@
       <groupId>org.arquillian.container</groupId>
       <artifactId>arquillian-container-chameleon</artifactId>
       <version>1.0.0.Alpha6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.rhd.katapult</groupId>
+      <artifactId>core-api</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>
