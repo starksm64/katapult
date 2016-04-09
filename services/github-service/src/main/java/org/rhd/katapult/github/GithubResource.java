@@ -58,25 +58,38 @@ public class GithubResource
    private static String GITHUB_DEV_APP_CLIENT_ID;
    /** The client secret received from GitHub when the developer app was registered */
    private static String GITHUB_DEV_APP_SECRET;
+   /** Our User-Agent HTTP header value (name of our app) */
+   private static String HEADER_VALUE_USER_AGENT = "Kontinuity Catapult";
 
    /**
     * Initialize the GITHUB_DEV_APP_CLIENT_ID and GITHUB_DEV_APP_SECRET values from the environment by first looking
-    * to the system property by the same name, will fallback to the environment variable by the same name.
+    * to the system property by the same name, will fallback to the environment variable by the same name.  If not
+    * specified, fail to start this component with {@link IllegalStateException}.
     */
    @PostConstruct
    private void init() {
       // Try the system property first since this can be specified in the server configuration
       GITHUB_DEV_APP_CLIENT_ID = System.getProperty("GITHUB_DEV_APP_CLIENT_ID");
-      if(GITHUB_DEV_APP_CLIENT_ID == null)
+      if (GITHUB_DEV_APP_CLIENT_ID == null) {
          GITHUB_DEV_APP_CLIENT_ID = System.getenv("GITHUB_DEV_APP_CLIENT_ID");
-      if(GITHUB_DEV_APP_CLIENT_ID == null)
-         log.severe("Failed to find binding for GITHUB_DEV_APP_CLIENT_ID");
+      }
+      if (GITHUB_DEV_APP_CLIENT_ID == null) {
+         final String errorMessage =
+                 "Failed to find binding for GITHUB_DEV_APP_CLIENT_ID as env var or sysprop; cannot init";
+         log.severe(errorMessage);
+         throw new IllegalStateException(errorMessage);
+      }
 
       GITHUB_DEV_APP_SECRET = System.getProperty("GITHUB_DEV_APP_SECRET");
-      if(GITHUB_DEV_APP_SECRET == null)
+      if (GITHUB_DEV_APP_SECRET == null) {
          GITHUB_DEV_APP_SECRET = System.getenv("GITHUB_DEV_APP_SECRET");
-      if(GITHUB_DEV_APP_SECRET == null)
-         log.severe("Failed to find binding for GITHUB_DEV_APP_SECRET");
+      }
+      if (GITHUB_DEV_APP_SECRET == null) {
+         final String errorMessage =
+                 "Failed to find binding for GITHUB_DEV_APP_SECRET as env var or sysprop; cannot init";
+         log.severe(errorMessage);
+         throw new IllegalStateException(errorMessage);
+      }
    }
 
    /**
@@ -123,7 +136,7 @@ public class GithubResource
       log.info("OAuth2 response: "+response.getStatusInfo());
       if(log.isLoggable(Level.FINEST)) {
          log.finest("OAuth2 response headers:");
-         response.getHeaders().forEach((key, values) -> log.info(key + ": " + values));
+         response.getHeaders().forEach((key, values) -> log.finest(key + ": " + values));
       }
       return response;
    }
@@ -230,7 +243,7 @@ public class GithubResource
               .request()
               .accept(MediaType.APPLICATION_JSON_TYPE)
               .header("Authorization", "token " + accessToken)
-              .header("User-Agent", "Github Forker")
+              .header("User-Agent", HEADER_VALUE_USER_AGENT)
               .post(Entity.text(""));
       Response.StatusType status = response.getStatusInfo();
       if (status == Response.Status.ACCEPTED)
@@ -260,7 +273,7 @@ public class GithubResource
               .request()
               .accept(MediaType.APPLICATION_JSON_TYPE)
               .header("Authorization", "token " + accessToken)
-              .header("User-Agent", "Forge Online App")
+              .header("User-Agent", HEADER_VALUE_USER_AGENT)
               .post(Entity.json(json.build()));
       int status = response.getStatus();
       if (status != 201)

@@ -10,6 +10,10 @@ import org.rhd.katapult.openshift.api.DuplicateProjectException;
 import org.rhd.katapult.openshift.api.OpenShiftProject;
 import org.rhd.katapult.openshift.api.OpenShiftService;
 import org.rhd.katapult.openshift.impl.OpenShiftProjectImpl;
+import org.rhd.katapult.openshift.spi.OpenShiftServiceSpi;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of the {@link OpenShiftService} using the Fabric8
@@ -17,7 +21,9 @@ import org.rhd.katapult.openshift.impl.OpenShiftProjectImpl;
  *
  * @author <a href="mailto:alr@redhat.com">Andrew Lee Rubinger</a>
  */
-final class Fabric8OpenShiftClientServiceImpl implements OpenShiftService {
+final class Fabric8OpenShiftClientServiceImpl implements OpenShiftService, OpenShiftServiceSpi {
+
+    private static final Logger log = Logger.getLogger(Fabric8OpenShiftClientServiceImpl.class.getName());
 
     private static final int CODE_DUPLICATE_PROJECT = 409;
     private static final String STATUS_REASON_DUPLICATE_PROJECT = "AlreadyExists";
@@ -63,8 +69,7 @@ final class Fabric8OpenShiftClientServiceImpl implements OpenShiftService {
         } catch (final KubernetesClientException kce) {
             // Detect if duplicate project
             if (kce.getCode() == CODE_DUPLICATE_PROJECT &&
-                    STATUS_REASON_DUPLICATE_PROJECT.equals(kce.getStatus().getReason()))
-            {
+                    STATUS_REASON_DUPLICATE_PROJECT.equals(kce.getStatus().getReason())) {
                 throw new DuplicateProjectException(name);
             }
 
@@ -76,5 +81,25 @@ final class Fabric8OpenShiftClientServiceImpl implements OpenShiftService {
         final String roundtripDisplayName = projectRequest.getMetadata().getName();
         final OpenShiftProject project = new OpenShiftProjectImpl(roundtripDisplayName);
         return project;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean deleteProject(final OpenShiftProject project) throws IllegalArgumentException {
+        if (project == null) {
+            throw new IllegalArgumentException("project must be specified");
+        }
+
+        final String projectName = project.getName();
+
+        final boolean deleted = client.projects().withName(projectName).delete();
+        if (deleted) {
+            if (log.isLoggable(Level.FINEST)) {
+                log.log(Level.FINEST, "Deleted project: " + projectName);
+            }
+        }
+        return deleted;
     }
 }
