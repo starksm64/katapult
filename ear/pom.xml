@@ -3,40 +3,40 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.rhd.katapult</groupId>
-        <artifactId>katapult-parent</artifactId>
+        <groupId>org.kontinuity.catapult</groupId>
+        <artifactId>catapult-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>katapult-ear</artifactId>
+    <artifactId>catapult-ear</artifactId>
     <packaging>ear</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.rhd.katapult</groupId>
-            <artifactId>katapult</artifactId>
+            <groupId>org.kontinuity.catapult</groupId>
+            <artifactId>catapult-web</artifactId>
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>org.rhd.katapult</groupId>
-            <artifactId>github-service</artifactId>
+            <groupId>org.kontinuity.catapult</groupId>
+            <artifactId>catapult-service-github</artifactId>
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>org.rhd.katapult</groupId>
-            <artifactId>openshift-service</artifactId>
+            <groupId>org.kontinuity.catapult</groupId>
+            <artifactId>catapult-service-openshift</artifactId>
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>org.rhd.katapult</groupId>
-            <artifactId>core-api</artifactId>
+            <groupId>org.kontinuity.catapult</groupId>
+            <artifactId>catapult-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.rhd.katapult</groupId>
-            <artifactId>core-impl</artifactId>
+            <groupId>org.kontinuity.catapult</groupId>
+            <artifactId>catapult-core-impl</artifactId>
         </dependency>
     </dependencies>
     <build>
-        <finalName>katapult</finalName>
+        <finalName>catapult</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
@@ -44,16 +44,17 @@
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <modules>
                         <ejbModule>
-                            <groupId>org.rhd.katapult</groupId>
-                            <artifactId>github-service</artifactId>
+                            <groupId>org.kontinuity.catapult</groupId>
+                            <artifactId>catapult-service-github</artifactId>
                         </ejbModule>
                         <ejbModule>
-                            <groupId>org.rhd.katapult</groupId>
-                            <artifactId>openshift-service</artifactId>
+                            <groupId>org.kontinuity.catapult</groupId>
+                            <artifactId>catapult-service-openshift</artifactId>
                         </ejbModule>
                         <webModule>
-                            <groupId>org.rhd.katapult</groupId>
-                            <artifactId>katapult</artifactId>
+                            <groupId>org.kontinuity.catapult</groupId>
+                            <artifactId>catapult-web</artifactId>
+                            <contextRoot>/kontinuity-catapult</contextRoot>
                         </webModule>
                     </modules>
                 </configuration>

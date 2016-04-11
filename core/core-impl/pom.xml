@@ -3,10 +3,26 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
-      <groupId>org.rhd.katapult</groupId>
-      <artifactId>katapult-parent</artifactId>
+      <groupId>org.kontinuity.catapult</groupId>
+      <artifactId>catapult-parent</artifactId>
       <version>1.0.0-SNAPSHOT</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
-   <artifactId>core-impl</artifactId>
+   <artifactId>catapult-core-impl</artifactId>
+   <dependencies>
+      <dependency>
+         <groupId>org.kontinuity.catapult</groupId>
+         <artifactId>catapult-core-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.kontinuity.catapult</groupId>
+         <artifactId>catapult-service-github</artifactId>
+         <type>ejb</type>
+      </dependency>
+      <dependency>
+         <groupId>org.kontinuity.catapult</groupId>
+         <artifactId>catapult-service-openshift</artifactId>
+         <type>ejb</type>
+      </dependency>
+   </dependencies>
 </project>

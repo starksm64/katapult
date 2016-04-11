@@ -1,5 +1,24 @@
-# katapult
+# Kontinuity Catapult
 Empower engineering teams using Red Hat technologies with an intuitive experience to quickly and confidently promote their code from development to production.
+
+Kontinuity is the Public Effort at Red Hat to bring Continuous Delivery features and methodology to our communities and customers.
+
+Catapult, as the name suggests, is a launcher.  Its responsibility is to take the following inputs:
+
+* A GitHub project
+* A GitHub user (via OAuth token)
+* An OpenShift instance's API URL
+* An OpenShift user
+
+And perform the following actions:
+
+* Fork the GitHub project into the GitHub user's namespace
+* Create an OpenShift project
+* Apply the pipeline template to the OpenShift project
+* Associate the OpenShift project with the newly-forked GitHub repo
+* Create a GitHub webhook on the newly-forked GitHub project to register push events to the OpenShift project
+
+This will result in a fully-pipelined OpenShift project from a source GitHub repo.  The pipeline definition itself is expected to reside in a Groovy-based Jenkins Pipeline (https://github.com/jenkinsci/workflow-plugin/blob/master/README.md#introduction) script called a Jenkinsfile.
 
 Prerequisites to Build
 ----------------------
